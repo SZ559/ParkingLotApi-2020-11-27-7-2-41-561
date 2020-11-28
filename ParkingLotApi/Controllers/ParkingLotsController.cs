@@ -39,16 +39,14 @@ namespace ParkingLotApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
         }
 
-        [HttpDelete("{name}")]
-        public async Task<ActionResult<int>> DeleteParkingLotAsync(string name)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<int>> DeleteParkingLotAsync(int id)
         {
-            var isNameExisted = await parkingLotService.ContainsName(name);
-            if (!isNameExisted)
+            var isDeleteSuccess = await parkingLotService.DeleteParkingLotById(id);
+            if (!isDeleteSuccess)
             {
                 return NotFound();
             }
-
-            await parkingLotService.DeleteParkingLotByName(name);
 
             return NoContent();
         }
@@ -64,7 +62,12 @@ namespace ParkingLotApi.Controllers
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
             var parkingLot = await parkingLotService.GetParkingLotById(id);
-            return Ok(parkingLot);
+            if (parkingLot == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(parkingLot);   
         }
     }
 }

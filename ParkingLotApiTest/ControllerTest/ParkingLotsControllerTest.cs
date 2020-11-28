@@ -103,26 +103,26 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_Delete_ParkingLot_Given_Existed_Name()
+        public async Task Should_Delete_ParkingLot_Given_Existed_Id()
         {
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = SerializeParkingLot(parkingLot);
-            await client.PostAsync("/ParkingLots", requestBody);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
 
             //when
-            var postResponse = await client.DeleteAsync($"/ParkingLots/{parkingLot.Name}");
+            var deleteResponse = await client.DeleteAsync(postResponse.Headers.Location);
 
             //then
-            Assert.Equal(HttpStatusCode.NoContent, postResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
             var dbContext = GetContext();
             Assert.Equal(0, dbContext.ParkingLots.Count());
         }
 
         [Fact]
-        public async Task Should_Return_Not_Found_Given_Not_Existed_Name()
+        public async Task Should_Return_Not_Found_Given_Not_Existed_Id()
         {
             //given
             var client = GetClient();
@@ -131,10 +131,10 @@ namespace ParkingLotApiTest.ControllerTest
             await client.PostAsync("/ParkingLots", requestBody);
 
             //when
-            var postResponse = await client.DeleteAsync($"/ParkingLots/notfoundName");
+            var deleteResponse = await client.DeleteAsync($"/ParkingLots/100");
 
             //then
-            Assert.Equal(HttpStatusCode.NotFound, postResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
 
             var dbContext = GetContext();
             Assert.Equal(1, dbContext.ParkingLots.Count());
@@ -165,13 +165,48 @@ namespace ParkingLotApiTest.ControllerTest
             }
 
             //when
-            var postResponse = await client.GetAsync($"/ParkingLots?pageIndex=1");
+            var getResponse = await client.GetAsync($"/ParkingLots?pageIndex=1");
 
             //then
-            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-            var actualParkingLots = await DeSerializeResponseAsync<IList<ParkingLotDto>>(postResponse);
+            var actualParkingLots = await DeSerializeResponseAsync<IList<ParkingLotDto>>(getResponse);
             Assert.Equal(expectedParkingLots, actualParkingLots);
+        }
+
+        [Fact]
+        public async Task Should_Return_ParingLot_Given_Id()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+
+            //when
+            var getResponse = await client.GetAsync(postResponse.Headers.Location);
+
+            //then
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var actualParkingLots = await DeSerializeResponseAsync<ParkingLotDto>(getResponse);
+            Assert.Equal(parkingLot, actualParkingLots);
+        }
+
+        [Fact]
+        public async Task Should_Return_NotFound_Given_Not_Existed_Id()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+
+            //when
+            var getResponse = await client.GetAsync("/ParkingLots/100");
+
+            //then
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
     }
 }

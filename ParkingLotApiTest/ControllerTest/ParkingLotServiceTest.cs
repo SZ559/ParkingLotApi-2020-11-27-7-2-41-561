@@ -48,16 +48,16 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_Delete_ParkingLot_By_Name_Successfully()
+        public async Task Should_Delete_ParkingLot_By_Id_Successfully()
         {
             //given
             var parkingLot = GenerateParkingLotDtoInstance();
             var dbContext = GetContext();
             var parkingLotService = new ParkingLotService(dbContext);
-            await parkingLotService.AddParkingLotAsync(parkingLot);
+            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotByName(parkingLot.Name);
+            await parkingLotService.DeleteParkingLotById(id);
 
             //then
             Assert.Equal(0, dbContext.ParkingLots.Count());
@@ -73,7 +73,7 @@ namespace ParkingLotApiTest.ControllerTest
             await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotByName("notExisteName");
+            await parkingLotService.DeleteParkingLotById(13);
 
             //then
             Assert.Equal(1, dbContext.ParkingLots.Count());

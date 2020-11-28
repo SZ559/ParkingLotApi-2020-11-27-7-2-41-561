@@ -13,7 +13,7 @@ namespace ParkingLotApi.Service
         Task<int> AddParkingLotAsync(ParkingLotDto parkingLotDto);
         Task<ParkingLotDto> GetParkingLotById(int id);
         Task<bool> ContainsName(string name);
-        Task<bool> DeleteParkingLotByName(string name);
+        Task<bool> DeleteParkingLotById(int id);
         Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex);
     }
 
@@ -39,9 +39,9 @@ namespace ParkingLotApi.Service
             return parkingLotEntity.Id;
         }
 
-        public async Task<bool> DeleteParkingLotByName(string name)
+        public async Task<bool> DeleteParkingLotById(int id)
         {
-            var parkingLot = await GetParkingLotByName(name);
+            var parkingLot = parkingLotDbContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
             if (parkingLot == null)
             {
                 return false;
@@ -57,16 +57,9 @@ namespace ParkingLotApi.Service
             return parkingLotDbContext.ParkingLots.Any(lot => lot.Name == name);
         }
 
-        public async Task<ParkingLotEntity> GetParkingLotByName(string name)
-        {
-            return parkingLotDbContext.ParkingLots.FirstOrDefault(lot => lot.Name == name);
-        }
-
         public async Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex)
         {
             const int parkingLotsperPage = 15;
-            var a = parkingLotDbContext.ParkingLots.Skip(1);
-
             return parkingLotDbContext.ParkingLots
                 .Skip(parkingLotsperPage * (pageIndex - 1))
                 .Take(parkingLotsperPage)
