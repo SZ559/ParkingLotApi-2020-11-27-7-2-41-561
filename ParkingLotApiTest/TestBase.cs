@@ -22,12 +22,21 @@ namespace ParkingLotApiTest
             var scopedServices = scope.ServiceProvider;
             var context = scopedServices.GetRequiredService<ParkingLotContext>();
 
+            context.ParkingLots.RemoveRange(context.ParkingLots);
             context.SaveChanges();
         }
 
         protected HttpClient GetClient()
         {
             return Factory.CreateClient();
+        }
+
+        protected ParkingLotContext GetContext()
+        {
+            var scope = Factory.Services.CreateScope();
+            var scopedServices = scope.ServiceProvider;
+
+            return scopedServices.GetRequiredService<ParkingLotContext>();
         }
     }
 }

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ParkingLotApi.Entity;
+using ParkingLotApi.Service;
+using ParkingLotApi.Dto;
 
 namespace ParkingLotApi.Controllers
 {
@@ -11,10 +14,36 @@ namespace ParkingLotApi.Controllers
     [Route("[controller]")]
     public class ParkingLotsController : ControllerBase
     {
-        [HttpGet]
-        public string Get()
+        private readonly IParkingLotSerive parkingLotService;
+        public ParkingLotsController(IParkingLotSerive parkingLotService)
         {
-            return "Hello World";
+            this.parkingLotService = parkingLotService;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<int>> AddParkingLotAsync(ParkingLotDto parkingLotDto)
+        {
+            var errorMessage = string.Empty;
+            if (!parkingLotDto.IsValid(out errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
+            if (await parkingLotService.ContainsName(parkingLotDto.Name))
+            {
+                return BadRequest("Name already exists.");
+            }
+
+            var id = await parkingLotService.AddParkingLotAsync(parkingLotDto);
+
+            return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ParkingLotDto>> GetById(int id)
+        {
+            var companyDto = await parkingLotService.GetParkingLotById(id);
+            return Ok(companyDto);
         }
     }
 }
