@@ -9,6 +9,8 @@ using System.Net.Mime;
 using System.Net;
 using System.Linq;
 using ParkingLotApi.Dto;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ParkingLotApiTest.ControllerTest
 {
@@ -19,9 +21,9 @@ namespace ParkingLotApiTest.ControllerTest
         {
         }
 
-        public ParkingLotDto GenerateParkingLotDtoInstance()
+        public ParkingLotDto GenerateParkingLotDtoInstance(string name = "uniqueName")
         {
-            return new ParkingLotDto() { Name = "uniqueName", Capacity = 1, Location = "BEIJING" };
+            return new ParkingLotDto() { Name = name, Capacity = 1, Location = "BEIJING" };
         }
 
         public StringContent SerializeParkingLot<T>(T parkingLot)
@@ -136,6 +138,40 @@ namespace ParkingLotApiTest.ControllerTest
 
             var dbContext = GetContext();
             Assert.Equal(1, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
+        public async Task Should_Return_ParingLots_with_15_per_page_Given_Page_Index()
+        {
+            //given
+            var client = GetClient();
+            var count = 0;
+            var expectedParkingLots = new List<ParkingLotDto>();
+            while (count < 15)
+            {
+                var parkingLot = GenerateParkingLotDtoInstance(count.ToString());
+                expectedParkingLots.Add(parkingLot);
+                var requestBody = SerializeParkingLot(parkingLot);
+                await client.PostAsync("/ParkingLots", requestBody);
+                count++;
+            }
+
+            while (count < 20)
+            {
+                var parkingLot = GenerateParkingLotDtoInstance(count.ToString());
+                var requestBody = SerializeParkingLot(parkingLot);
+                await client.PostAsync("/ParkingLots", requestBody);
+                count++;
+            }
+
+            //when
+            var postResponse = await client.GetAsync($"/ParkingLots?pageIndex=1");
+
+            //then
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var actualParkingLots = await DeSerializeResponseAsync<IList<ParkingLotDto>>(postResponse);
+            Assert.Equal(expectedParkingLots, actualParkingLots);
         }
     }
 }

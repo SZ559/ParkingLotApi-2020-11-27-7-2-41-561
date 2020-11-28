@@ -42,7 +42,8 @@ namespace ParkingLotApi.Controllers
         [HttpDelete("{name}")]
         public async Task<ActionResult<int>> DeleteParkingLotAsync(string name)
         {
-            if (!await parkingLotService.ContainsName(name))
+            var isNameExisted = await parkingLotService.ContainsName(name);
+            if (!isNameExisted)
             {
                 return NotFound();
             }
@@ -52,11 +53,18 @@ namespace ParkingLotApi.Controllers
             return NoContent();
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IList<ParkingLotDto>>> GetParkingLots([FromQuery] int pageIndex)
+        {
+            var parkingLots = await parkingLotService.GetParkingLotByPageIndex(pageIndex);
+            return Ok(parkingLots);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
-            var companyDto = await parkingLotService.GetParkingLotById(id);
-            return Ok(companyDto);
+            var parkingLot = await parkingLotService.GetParkingLotById(id);
+            return Ok(parkingLot);
         }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ParkingLotApi.Dto;
+using System.Collections.Generic;
 
 namespace ParkingLotApiTest.ControllerTest
 {
@@ -76,6 +77,22 @@ namespace ParkingLotApiTest.ControllerTest
 
             //then
             Assert.Equal(1, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
+        public async Task Should_get_parkinglots_with_15_on_each_page_successfully()
+        {
+            //given
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var dbContext = GetContext();
+            var parkingLotService = new ParkingLotService(dbContext);
+            await parkingLotService.AddParkingLotAsync(parkingLot);
+
+            //when
+            var acatualParkingLots = await parkingLotService.GetParkingLotByPageIndex(2);
+
+            //then
+            Assert.Equal(new List<ParkingLotDto>(), acatualParkingLots);
         }
     }
 }
