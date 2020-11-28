@@ -58,6 +58,24 @@ namespace ParkingLotApi.Controllers
             return Ok(parkingLots);
         }
 
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<ParkingLotDto>> UpdateCapacity(int id, CapacityDto updatedCapacity)
+        {
+            if (updatedCapacity == null || updatedCapacity.Capacity == null)
+            {
+                return BadRequest("Capacity cannot be null.");
+            }
+
+            var updatedParkingLot = await parkingLotService.UpdateCapacity(id, updatedCapacity);
+
+            if (updatedParkingLot == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedParkingLot);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {

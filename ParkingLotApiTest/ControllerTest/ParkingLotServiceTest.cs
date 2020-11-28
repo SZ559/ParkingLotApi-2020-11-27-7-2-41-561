@@ -94,5 +94,42 @@ namespace ParkingLotApiTest.ControllerTest
             //then
             Assert.Equal(new List<ParkingLotDto>(), acatualParkingLots);
         }
+
+        [Fact]
+        public async Task Should_updated_parkingLot_successfully()
+        {
+            //given
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var dbContext = GetContext();
+            var parkingLotService = new ParkingLotService(dbContext);
+            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
+
+            //when
+            var updatedCapacity = new CapacityDto() { Capacity = 2 };
+            var acatualParkingLots = await parkingLotService.UpdateCapacity(id, updatedCapacity);
+
+            //then
+            Assert.Equal(updatedCapacity.Capacity.Value, acatualParkingLots.Capacity.Value);
+
+            var actualParkingLot = await dbContext.ParkingLots.FirstOrDefaultAsync(lot => lot.Id == id);
+            Assert.Equal(updatedCapacity.Capacity.Value, actualParkingLot.Capacity);
+        }
+
+        [Fact]
+        public async Task Should_return_null_when_updated_id_not_existed()
+        {
+            //given
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var dbContext = GetContext();
+            var parkingLotService = new ParkingLotService(dbContext);
+            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
+
+            //when
+            var updatedCapacity = new CapacityDto() { Capacity = 2 };
+            var acatualParkingLots = await parkingLotService.UpdateCapacity(200, updatedCapacity);
+
+            //then
+            Assert.Null(acatualParkingLots);
+        }
     }
 }

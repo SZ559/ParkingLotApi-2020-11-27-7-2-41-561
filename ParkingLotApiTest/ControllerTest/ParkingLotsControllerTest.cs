@@ -208,5 +208,61 @@ namespace ParkingLotApiTest.ControllerTest
             //then
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Update_Capactiy_Successfully_Given_Existed_Id_And_Not_Null_Capacity()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { Capacity = 10 });
+
+            //when
+            var patchResponse = await client.PatchAsync(postResponse.Headers.Location, updateBody);
+
+            //then
+            Assert.Equal(HttpStatusCode.OK, patchResponse.StatusCode);
+
+            var actualParkingLot = await DeSerializeResponseAsync<ParkingLotDto>(patchResponse);
+            Assert.Equal(actualParkingLot.Capacity.Value, (uint)10);
+        }
+
+        [Fact]
+        public async Task Should_Return_Error_Message_Given_Null_Capacity()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { });
+
+            //when
+            var patchResponse = await client.PatchAsync(postResponse.Headers.Location, updateBody);
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
+            var response = await patchResponse.Content.ReadAsStringAsync();
+            Assert.Equal("Capacity cannot be null.", response);
+        }
+
+        [Fact]
+        public async Task Should_Return_Not_Found_Given_Not_Existed_Id_When_Patch()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { Capacity = 10 });
+
+            //when
+            var patchResponse = await client.PatchAsync("/ParkingLots/100", updateBody);
+
+            //then
+            Assert.Equal(HttpStatusCode.NotFound, patchResponse.StatusCode);
+        }
     }
 }

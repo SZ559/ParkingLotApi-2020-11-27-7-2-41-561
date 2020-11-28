@@ -15,6 +15,7 @@ namespace ParkingLotApi.Service
         Task<bool> ContainsName(string name);
         Task<bool> DeleteParkingLotById(int id);
         Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex);
+        Task<ParkingLotDto> UpdateCapacity(int id, CapacityDto updatedCapacity);
     }
 
     public class ParkingLotService : IParkingLotSerive
@@ -65,6 +66,20 @@ namespace ParkingLotApi.Service
                 .Take(parkingLotsperPage)
                 .Select(paringLot => new ParkingLotDto(paringLot))
                 .ToList();
+        }
+
+        public async Task<ParkingLotDto> UpdateCapacity(int id, CapacityDto updatedCapacity)
+        {
+            var parkingLot = parkingLotDbContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
+            if (parkingLot == null)
+            {
+                return null;
+            }
+
+            parkingLot.Capacity = updatedCapacity.Capacity.Value;
+
+            parkingLotDbContext.ParkingLots.Update(parkingLot);
+            return new ParkingLotDto(parkingLot);
         }
 
         public async Task<ParkingLotDto> GetParkingLotById(int id)
