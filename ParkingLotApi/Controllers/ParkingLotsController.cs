@@ -31,12 +31,25 @@ namespace ParkingLotApi.Controllers
 
             if (await parkingLotService.ContainsName(parkingLotDto.Name))
             {
-                return BadRequest("Name already exists.");
+                return Conflict("Name already exists.");
             }
 
             var id = await parkingLotService.AddParkingLotAsync(parkingLotDto);
 
             return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+        }
+
+        [HttpDelete("{name}")]
+        public async Task<ActionResult<int>> DeleteParkingLotAsync(string name)
+        {
+            if (!await parkingLotService.ContainsName(name))
+            {
+                return NotFound();
+            }
+
+            await parkingLotService.DeleteParkingLotByName(name);
+
+            return NoContent();
         }
 
         [HttpGet("{id}")]

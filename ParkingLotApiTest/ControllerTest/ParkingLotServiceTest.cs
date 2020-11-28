@@ -45,5 +45,37 @@ namespace ParkingLotApiTest.ControllerTest
             var actualParkingLot = await dbContext.ParkingLots.FirstOrDefaultAsync(lot => lot.Name == parkingLot.Name);
             Assert.Equal(parkingLot, new ParkingLotDto(actualParkingLot));
         }
+
+        [Fact]
+        public async Task Should_Delete_ParkingLot_By_Name_Successfully()
+        {
+            //given
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var dbContext = GetContext();
+            var parkingLotService = new ParkingLotService(dbContext);
+            await parkingLotService.AddParkingLotAsync(parkingLot);
+
+            //when
+            await parkingLotService.DeleteParkingLotByName(parkingLot.Name);
+
+            //then
+            Assert.Equal(0, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
+        public async Task Should_Not_Delete_ParkingLot_By_Name_Given_Name_Not_Existed()
+        {
+            //given
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var dbContext = GetContext();
+            var parkingLotService = new ParkingLotService(dbContext);
+            await parkingLotService.AddParkingLotAsync(parkingLot);
+
+            //when
+            await parkingLotService.DeleteParkingLotByName("notExisteName");
+
+            //then
+            Assert.Equal(1, dbContext.ParkingLots.Count());
+        }
     }
 }

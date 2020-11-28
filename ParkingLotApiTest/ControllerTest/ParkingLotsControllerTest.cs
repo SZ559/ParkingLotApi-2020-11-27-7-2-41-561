@@ -91,10 +91,48 @@ namespace ParkingLotApiTest.ControllerTest
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
 
             //then
-            Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, postResponse.StatusCode);
 
             var responseBody = await postResponse.Content.ReadAsStringAsync();
             Assert.Equal("Name already exists.", responseBody);
+
+            var dbContext = GetContext();
+            Assert.Equal(1, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
+        public async Task Should_Delete_ParkingLot_Given_Existed_Name()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            await client.PostAsync("/ParkingLots", requestBody);
+
+            //when
+            var postResponse = await client.DeleteAsync($"/ParkingLots/{parkingLot.Name}");
+
+            //then
+            Assert.Equal(HttpStatusCode.NoContent, postResponse.StatusCode);
+
+            var dbContext = GetContext();
+            Assert.Equal(0, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
+        public async Task Should_Return_Not_Found_Given_Not_Existed_Name()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = SerializeParkingLot(parkingLot);
+            await client.PostAsync("/ParkingLots", requestBody);
+
+            //when
+            var postResponse = await client.DeleteAsync($"/ParkingLots/notfoundName");
+
+            //then
+            Assert.Equal(HttpStatusCode.NotFound, postResponse.StatusCode);
 
             var dbContext = GetContext();
             Assert.Equal(1, dbContext.ParkingLots.Count());

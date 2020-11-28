@@ -13,6 +13,7 @@ namespace ParkingLotApi.Service
         Task<int> AddParkingLotAsync(ParkingLotDto parkingLotDto);
         Task<ParkingLotDto> GetParkingLotById(int id);
         Task<bool> ContainsName(string name);
+        Task DeleteParkingLotByName(string name);
     }
 
     public class ParkingLotService : IParkingLotSerive
@@ -37,9 +38,21 @@ namespace ParkingLotApi.Service
             return parkingLotEntity.Id;
         }
 
+        public async Task DeleteParkingLotByName(string name)
+        {
+            var parkingLot = await GetParkingLotByName(name);
+            parkingLotDbContext.ParkingLots.Remove(parkingLot);
+            await parkingLotDbContext.SaveChangesAsync();
+        }
+
         public async Task<bool> ContainsName(string name)
         {
             return parkingLotDbContext.ParkingLots.Any(lot => lot.Name == name);
+        }
+
+        public async Task<ParkingLotEntity> GetParkingLotByName(string name)
+        {
+            return parkingLotDbContext.ParkingLots.FirstOrDefault(lot => lot.Name == name);
         }
 
         public async Task<ParkingLotDto> GetParkingLotById(int id)
