@@ -9,7 +9,7 @@ namespace ParkingLotApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class HelloController : ControllerBase
+    public class ParkingLotsController : ControllerBase
     {
         [HttpGet]
         public string Get()

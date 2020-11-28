@@ -4,9 +4,9 @@ using Xunit;
 
 namespace ParkingLotApiTest.ControllerTest
 {
-    public class HelloWorldControllerTest : TestBase
+    public class ParkingLotsControllerTest : TestBase
     {
-        public HelloWorldControllerTest(CustomWebApplicationFactory<Startup> factory) : base(factory)
+        public ParkingLotsControllerTest(CustomWebApplicationFactory<Startup> factory) : base(factory)
         {
         }
 

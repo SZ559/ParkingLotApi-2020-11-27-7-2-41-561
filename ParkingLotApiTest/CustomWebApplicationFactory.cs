@@ -11,30 +11,30 @@ namespace ParkingLotApiTest
         : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureServices(services =>
-            {
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType ==
-                         typeof(DbContextOptions<ParkingLotContext>));
+        //protected override void ConfigureWebHost(IWebHostBuilder builder)
+        //{
+        //    builder.ConfigureServices(services =>
+        //    {
+        //        var descriptor = services.SingleOrDefault(
+        //            d => d.ServiceType ==
+        //                 typeof(DbContextOptions<ParkingLotContext>));
 
-                services.Remove(descriptor);
+        //        services.Remove(descriptor);
 
-                services.AddDbContext<ParkingLotContext>(options =>
-                {
-                    InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(options, "InMemoryDbForTesting");
-                });
+        //        services.AddDbContext<ParkingLotContext>(options =>
+        //        {
+        //            InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(options, "InMemoryDbForTesting");
+        //        });
 
-                var sp = services.BuildServiceProvider();
+        //        var sp = services.BuildServiceProvider();
 
-                using (var scope = sp.CreateScope())
-                {
-                    var scopedServices = scope.ServiceProvider;
-                    var db = scopedServices.GetRequiredService<ParkingLotContext>();
-                    db.Database.EnsureCreated();
-                }
-            });
-        }
+        //        using (var scope = sp.CreateScope())
+        //        {
+        //            var scopedServices = scope.ServiceProvider;
+        //            var db = scopedServices.GetRequiredService<ParkingLotContext>();
+        //            db.Database.EnsureCreated();
+        //        }
+        //    });
+        //}
     }
 }
