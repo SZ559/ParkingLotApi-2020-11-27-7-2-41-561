@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using ParkingLotApi.Entity;
 using ParkingLotApi.Service;
 using ParkingLotApi.Dto;
 
@@ -21,7 +17,7 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> AddParkingLotAsync(ParkingLotDto parkingLotDto)
+        public async Task<ActionResult> AddParkingLotAsync(ParkingLotDto parkingLotDto)
         {
             var errorMessage = string.Empty;
             if (!parkingLotDto.IsValid(out errorMessage))

@@ -16,7 +16,7 @@ namespace ParkingLotApi.Entity
         [Key]
         public int OrderNumber { get; set; }
         public string ParkingLotName { get; set; }
-        public long PlateNumber { get; set; }
+        public string PlateNumber { get; set; }
         public DateTime CreationTime { get; set; } = DateTime.Now;
         public DateTime CloseTime { get; set; }
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Open;      

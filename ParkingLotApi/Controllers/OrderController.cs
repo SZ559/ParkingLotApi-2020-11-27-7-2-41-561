@@ -11,13 +11,54 @@ using ParkingLotApi.Dto;
 namespace ParkingLotApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/ParkingLots/{id}/Orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderService orderService;
-        public OrdersController(IOrderService orderService)
+        private readonly IParkingLotSerive parkingLotService;
+        public OrdersController(IParkingLotSerive parkingLotService)
         {
-            this.orderService = orderService;
+            this.parkingLotService = parkingLotService;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CreateOrderAsync(int id, CarDto car)
+        {
+            if (car.PlateNumber == null)
+            {
+                return BadRequest("Plate Number cannot be null.");
+            }
+
+            if (!await parkingLotService.IsParkingLotExisted(id))
+            {
+                return NotFound("ParkingLot not existed.");
+            }
+
+            if (!await parkingLotService.IsParkingLotFull(id))
+            {
+                return BadRequest();
+            }
+
+            var order = await parkingLotService.CreateOrder(id, car.PlateNumber);
+
+            return CreatedAtAction(nameof(GetByOrderNumber), new { id = id, orderNumber = order.OrderNumber }, order);
+        }
+
+        [HttpGet("{orderNumber}")]
+        public async Task<ActionResult<OrderDto>> GetByOrderNumber(int id, int orderNumber)
+        {
+            if (!await parkingLotService.IsParkingLotExisted(id))
+            {
+                return NotFound("ParkingLot not existed.");
+            }
+
+            var order = await parkingLotService.GetOrder(id, orderNumber);
+
+            if (order == null)
+            {
+                return NotFound("Order not existed.");
+            }
+
+            return Ok(order);
         }
     }
 }
