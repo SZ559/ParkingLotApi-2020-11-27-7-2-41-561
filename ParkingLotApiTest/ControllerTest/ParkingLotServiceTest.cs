@@ -1,15 +1,7 @@
 using System.Threading.Tasks;
 using ParkingLotApi;
 using Xunit;
-using ParkingLotApi.Entity;
-using Newtonsoft.Json;
-using System.Net.Http;
-using System.Text;
-using System.Net.Mime;
-using System.Net;
-using ParkingLotApi.Repository;
 using ParkingLotApi.Service;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ParkingLotApi.Dto;
@@ -57,7 +49,7 @@ namespace ParkingLotApiTest.ControllerTest
             var id = await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotById(id);
+            await parkingLotService.DeleteParkingLotByIdAsync(id);
 
             //then
             Assert.Equal(0, dbContext.ParkingLots.Count());
@@ -73,7 +65,7 @@ namespace ParkingLotApiTest.ControllerTest
             await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotById(13);
+            await parkingLotService.DeleteParkingLotByIdAsync(13);
 
             //then
             Assert.Equal(1, dbContext.ParkingLots.Count());
@@ -89,7 +81,7 @@ namespace ParkingLotApiTest.ControllerTest
             await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            var acatualParkingLots = await parkingLotService.GetParkingLotByPageIndex(2);
+            var acatualParkingLots = await parkingLotService.GetParkingLotByPageIndexAsync(2);
 
             //then
             Assert.Equal(new List<ParkingLotDto>(), acatualParkingLots);
@@ -106,30 +98,13 @@ namespace ParkingLotApiTest.ControllerTest
 
             //when
             var updatedCapacity = new CapacityDto() { Capacity = 2 };
-            var acatualParkingLots = await parkingLotService.UpdateCapacity(id, updatedCapacity);
+            var acatualParkingLots = await parkingLotService.UpdateCapacityAsync(id, updatedCapacity);
 
             //then
             Assert.Equal(updatedCapacity.Capacity.Value, acatualParkingLots.Capacity.Value);
 
             var actualParkingLot = await dbContext.ParkingLots.FirstOrDefaultAsync(lot => lot.Id == id);
             Assert.Equal(updatedCapacity.Capacity.Value, actualParkingLot.Capacity);
-        }
-
-        [Fact]
-        public async Task Should_return_null_when_updated_id_not_existed()
-        {
-            //given
-            var parkingLot = GenerateParkingLotDtoInstance();
-            var dbContext = GetContext();
-            var parkingLotService = new ParkingLotService(dbContext);
-            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
-
-            //when
-            var updatedCapacity = new CapacityDto() { Capacity = 2 };
-            var acatualParkingLots = await parkingLotService.UpdateCapacity(200, updatedCapacity);
-
-            //then
-            Assert.Null(acatualParkingLots);
         }
     }
 }

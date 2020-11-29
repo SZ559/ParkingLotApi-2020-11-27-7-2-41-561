@@ -25,7 +25,7 @@ namespace ParkingLotApi.Controllers
                 return BadRequest(errorMessage);
             }
 
-            if (await parkingLotService.ContainsName(parkingLotDto.Name))
+            if (await parkingLotService.ContainsNameAsync(parkingLotDto.Name))
             {
                 return Conflict("Name already exists.");
             }
@@ -38,19 +38,19 @@ namespace ParkingLotApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<int>> DeleteParkingLotAsync(int id)
         {
-            var isDeleteSuccess = await parkingLotService.DeleteParkingLotById(id);
-            if (!isDeleteSuccess)
+            if (!await parkingLotService.IsParkingLotExistedAsync(id))
             {
                 return NotFound();
             }
 
+            await parkingLotService.DeleteParkingLotByIdAsync(id);
             return NoContent();
         }
 
         [HttpGet]
         public async Task<ActionResult<IList<ParkingLotDto>>> GetParkingLots([FromQuery] int pageIndex)
         {
-            var parkingLots = await parkingLotService.GetParkingLotByPageIndex(pageIndex);
+            var parkingLots = await parkingLotService.GetParkingLotByPageIndexAsync(pageIndex);
             return Ok(parkingLots);
         }
 
@@ -62,20 +62,19 @@ namespace ParkingLotApi.Controllers
                 return BadRequest("Capacity cannot be null.");
             }
 
-            var updatedParkingLot = await parkingLotService.UpdateCapacity(id, updatedCapacity);
-
-            if (updatedParkingLot == null)
+            if (!await parkingLotService.IsParkingLotExistedAsync(id))
             {
                 return NotFound();
             }
 
+            var updatedParkingLot = await parkingLotService.UpdateCapacityAsync(id, updatedCapacity);
             return Ok(updatedParkingLot);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
-            var parkingLot = await parkingLotService.GetParkingLotById(id);
+            var parkingLot = await parkingLotService.GetParkingLotByIdAsync(id);
             if (parkingLot == null)
             {
                 return NotFound();

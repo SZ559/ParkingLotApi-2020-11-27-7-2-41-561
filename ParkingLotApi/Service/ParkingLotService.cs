@@ -8,22 +8,6 @@ using ParkingLotApi.Dto;
 
 namespace ParkingLotApi.Service
 {
-    public interface IParkingLotSerive
-    {
-        Task<int> AddParkingLotAsync(ParkingLotDto parkingLotDto);
-        Task<ParkingLotDto> GetParkingLotById(int id);
-        Task<bool> ContainsName(string name);
-        Task<bool> DeleteParkingLotById(int id);
-        Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex);
-        Task<ParkingLotDto> UpdateCapacity(int id, CapacityDto updatedCapacity);
-        Task<OrderDto> CreateOrder(int id, string plateNumber);
-        Task<bool> IsParkingLotExisted(int id);
-        Task<OrderDto> GetOrder(int id, int orderNumber);
-        Task<bool> IsParkingLotFull(int id);
-        Task<bool> IsOrderOpened(int orderNumber);
-        Task CloseOrder(int orderNumber);
-    }
-
     public class ParkingLotService : IParkingLotSerive
     {
         private readonly ParkingLotContext parkingLotDbContext;
@@ -46,9 +30,9 @@ namespace ParkingLotApi.Service
             return parkingLotEntity.Id;
         }
 
-        public async Task<bool> DeleteParkingLotById(int id)
+        public async Task<bool> DeleteParkingLotByIdAsync(int id)
         {
-            var parkingLot = await GetParkingLotEntityById(id);
+            var parkingLot = await GetParkingLotEntityByIdAsync(id);
             if (parkingLot == null)
             {
                 return false;
@@ -59,12 +43,12 @@ namespace ParkingLotApi.Service
             return true;
         }
 
-        public async Task<bool> ContainsName(string name)
+        public async Task<bool> ContainsNameAsync(string name)
         {
             return parkingLotDbContext.ParkingLots.Any(lot => lot.Name == name);
         }
 
-        public async Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex)
+        public async Task<IList<ParkingLotDto>> GetParkingLotByPageIndexAsync(int pageIndex)
         {
             const int parkingLotsperPage = 15;
             return parkingLotDbContext.ParkingLots
@@ -74,21 +58,15 @@ namespace ParkingLotApi.Service
                 .ToList();
         }
 
-        public async Task<ParkingLotDto> UpdateCapacity(int id, CapacityDto updatedCapacity)
+        public async Task<ParkingLotDto> UpdateCapacityAsync(int id, CapacityDto updatedCapacity)
         {
-            var parkingLot = await GetParkingLotEntityById(id);
-            if (parkingLot == null)
-            {
-                return null;
-            }
-
+            var parkingLot = await GetParkingLotEntityByIdAsync(id);
             parkingLot.Capacity = updatedCapacity.Capacity.Value;
-
             parkingLotDbContext.ParkingLots.Update(parkingLot);
             return new ParkingLotDto(parkingLot);
         }
 
-        public async Task<ParkingLotDto> GetParkingLotById(int id)
+        public async Task<ParkingLotDto> GetParkingLotByIdAsync(int id)
         {
             var parkingLot = parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id);
 
@@ -97,18 +75,18 @@ namespace ParkingLotApi.Service
 
         public async Task<bool> IsParkingLotFull(int id)
         {
-            var parkingLot = await GetParkingLotEntityById(id);
+            var parkingLot = await GetParkingLotEntityByIdAsync(id);
             return parkingLot.Capacity <= parkingLot.Orders.Where(lot => lot.OrderStatus == OrderStatus.Open).Count();
         }
 
-        public async Task<bool> IsParkingLotExisted(int id)
+        public async Task<bool> IsParkingLotExistedAsync(int id)
         {
             return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id) != null;
         }
 
-        public async Task<OrderDto> CreateOrder(int id, string plateNumber)
+        public async Task<OrderDto> CreateOrderAsync(int id, string plateNumber)
         {
-            var parkingLot = await GetParkingLotEntityById(id);
+            var parkingLot = await GetParkingLotEntityByIdAsync(id);
             var order = new OrderEntity()
             {
                 PlateNumber = plateNumber,
@@ -120,19 +98,19 @@ namespace ParkingLotApi.Service
             return new OrderDto(order);
         }
 
-        public async Task<OrderDto> GetOrder(int id, int orderNumber)
+        public async Task<OrderDto> GetOrderAsync(int id, int orderNumber)
         {
             var order = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
             return order == null ? null : new OrderDto(order);
         }
 
-        public async Task<bool> IsOrderOpened(int orderNumber)
+        public async Task<bool> IsOrderOpenedAsync(int orderNumber)
         {
             var orderInMemory = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
             return orderInMemory != null && orderInMemory.OrderStatus == OrderStatus.Open;
         }
 
-        public async Task CloseOrder(int orderNumber)
+        public async Task CloseOrderAsync(int orderNumber)
         {
             var orderInMemory = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
             orderInMemory.OrderStatus = OrderStatus.Close;
@@ -141,7 +119,7 @@ namespace ParkingLotApi.Service
             await parkingLotDbContext.SaveChangesAsync();
         }
 
-        private async Task<ParkingLotEntity> GetParkingLotEntityById(int id)
+        private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(int id)
         {
             return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id);
         }
