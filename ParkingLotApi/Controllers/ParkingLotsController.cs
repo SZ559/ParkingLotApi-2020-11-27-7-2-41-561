@@ -43,6 +43,11 @@ namespace ParkingLotApi.Controllers
                 return NotFound();
             }
 
+            if (!await parkingLotService.IsPakringLotEmptyAsync(id))
+            {
+                return BadRequest("The Parking Lot is not empty.");
+            }
+
             await parkingLotService.DeleteParkingLotByIdAsync(id);
             return NoContent();
         }

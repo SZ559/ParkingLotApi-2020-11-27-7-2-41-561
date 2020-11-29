@@ -99,6 +99,28 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
+        public async Task Should_Not_Delete_ParkingLot_Given_Not_Empty_Parking_Lot()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = Serialize(parkingLot);
+            var postResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var car = new CarDto() { PlateNumber = "N95024" };
+            var carRequestBody = Serialize(car);
+            var response = await client.PostAsync($"{postResponse.Headers.Location}/Orders", carRequestBody);
+            var hearder = response.Headers.Location;
+            //when
+            var deleteResponse = await client.DeleteAsync(postResponse.Headers.Location);
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest, deleteResponse.StatusCode);
+
+            var dbContext = GetContext();
+            Assert.Equal(1, dbContext.ParkingLots.Count());
+        }
+
+        [Fact]
         public async Task Should_Return_Not_Found_Given_Not_Existed_Id()
         {
             //given

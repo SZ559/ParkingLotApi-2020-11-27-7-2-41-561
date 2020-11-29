@@ -56,7 +56,7 @@ namespace ParkingLotApi.Controllers
                 return NotFound("ParkingLot not existed.");
             }
 
-            var orderInMemory = await parkingLotService.GetOrderAsync(id, orderNumber);
+            var orderInMemory = await parkingLotService.GetOrderAsync(orderNumber);
 
             if (orderInMemory == null || !orderInMemory.Equals(order))
             {
@@ -80,7 +80,7 @@ namespace ParkingLotApi.Controllers
                 return NotFound("ParkingLot not existed.");
             }
 
-            var order = await parkingLotService.GetOrderAsync(id, orderNumber);
+            var order = await parkingLotService.GetOrderAsync(orderNumber);
 
             if (order == null)
             {

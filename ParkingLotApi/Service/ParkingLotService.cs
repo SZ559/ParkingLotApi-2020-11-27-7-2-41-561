@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using ParkingLotApi.Entity;
 using ParkingLotApi.Repository;
 using ParkingLotApi.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace ParkingLotApi.Service
 {
     public class ParkingLotService : IParkingLotSerive
     {
         private readonly ParkingLotContext parkingLotDbContext;
+        private readonly object lot;
 
         public ParkingLotService(ParkingLotContext parkingLotDbContext)
         {
@@ -79,6 +81,12 @@ namespace ParkingLotApi.Service
             return parkingLot.Capacity <= parkingLot.Orders.Where(lot => lot.OrderStatus == OrderStatus.Open).Count();
         }
 
+        public async Task<bool> IsPakringLotEmptyAsync(int id)
+        {
+            var parkingLot = await GetParkingLotEntityByIdAsync(id);
+            return !parkingLot.Orders.Any(lot => lot.OrderStatus == OrderStatus.Open);
+        }
+
         public async Task<bool> IsParkingLotExistedAsync(int id)
         {
             return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id) != null;
@@ -98,7 +106,7 @@ namespace ParkingLotApi.Service
             return new OrderDto(order);
         }
 
-        public async Task<OrderDto> GetOrderAsync(int id, int orderNumber)
+        public async Task<OrderDto> GetOrderAsync(int orderNumber)
         {
             var order = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
             return order == null ? null : new OrderDto(order);
@@ -121,7 +129,7 @@ namespace ParkingLotApi.Service
 
         private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(int id)
         {
-            return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id);
+            return parkingLotDbContext.ParkingLots.Include(lot => lot.Orders).FirstOrDefault(parkingLot => parkingLot.Id == id);
         }
     }
 }

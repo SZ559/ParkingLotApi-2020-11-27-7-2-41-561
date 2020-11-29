@@ -16,9 +16,10 @@ namespace ParkingLotApi.Service
         Task<ParkingLotDto> UpdateCapacityAsync(int id, CapacityDto updatedCapacity);
         Task<OrderDto> CreateOrderAsync(int id, string plateNumber);
         Task<bool> IsParkingLotExistedAsync(int id);
-        Task<OrderDto> GetOrderAsync(int id, int orderNumber);
+        Task<OrderDto> GetOrderAsync(int orderNumber);
         Task<bool> IsParkingLotFull(int id);
         Task<bool> IsOrderOpenedAsync(int orderNumber);
         Task CloseOrderAsync(int orderNumber);
+        Task<bool> IsPakringLotEmptyAsync(int id);
     }
 }

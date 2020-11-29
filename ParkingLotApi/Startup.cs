@@ -53,11 +53,6 @@ namespace ParkingLotApi
                     {
                         context.Database.Migrate();
                     }
-                    else
-                    {
-                        context.Database.EnsureDeleted();
-                        context.Database.EnsureCreated();
-                    }
                 }
             }
 
