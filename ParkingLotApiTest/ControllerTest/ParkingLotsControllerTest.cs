@@ -21,23 +21,6 @@ namespace ParkingLotApiTest.ControllerTest
         {
         }
 
-        public ParkingLotDto GenerateParkingLotDtoInstance(string name = "uniqueName")
-        {
-            return new ParkingLotDto() { Name = name, Capacity = 1, Location = "BEIJING" };
-        }
-
-        public StringContent SerializeParkingLot<T>(T parkingLot)
-        {
-            var httpContent = JsonConvert.SerializeObject(parkingLot);
-            return new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-        }
-
-        public async Task<T> DeSerializeResponseAsync<T>(HttpResponseMessage response)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(responseBody);
-        }
-
         [Fact]
         public async Task Should_Add_ParkingLot_Successfully_Given_Not_Null_Fields_And_Unique_Name()
         {

@@ -21,17 +21,6 @@ namespace ParkingLotApiTest.ControllerTest
         {
         }
 
-        public ParkingLotDto GenerateParkingLotDtoInstance(string name = "uniqueName")
-        {
-            return new ParkingLotDto() { Name = name, Capacity = 1, Location = "BEIJING" };
-        }
-
-        public StringContent SerializeParkingLot<T>(T parkingLot)
-        {
-            var httpContent = JsonConvert.SerializeObject(parkingLot);
-            return new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-        }
-
         public async Task<T> DeSerializeResponseAsync<T>(HttpResponseMessage response)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
@@ -44,10 +33,10 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
             var car = new CarDto() { PlateNumber = "N95024" };
-            var carRequestBody = SerializeParkingLot(car);
+            var carRequestBody = Serialize(car);
             //when
             var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
 
@@ -67,10 +56,10 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
             var car = new CarDto() { PlateNumber = "N95024" };
-            var carRequestBody = SerializeParkingLot(car);
+            var carRequestBody = Serialize(car);
             //when
             var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}200/Orders", carRequestBody);
 
@@ -84,10 +73,10 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = new ParkingLotDto() { Name = "NAME", Capacity = 0, Location = "BEIJING" };
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
             var car = new CarDto() { PlateNumber = "N95024" };
-            var carRequestBody = SerializeParkingLot(car);
+            var carRequestBody = Serialize(car);
 
             //when
             var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
@@ -96,6 +85,78 @@ namespace ParkingLotApiTest.ControllerTest
             Assert.Equal(HttpStatusCode.BadRequest, orderPostResponse.StatusCode);
             var response = await orderPostResponse.Content.ReadAsStringAsync();
             Assert.Equal("The parking lot is full", response);
+        }
+
+        [Fact]
+        public async Task Should_Close_Order_Successfully_Given_Correct_Order()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = Serialize(parkingLot);
+            var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var car = new CarDto() { PlateNumber = "N95024" };
+            var carRequestBody = Serialize(car);
+            var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
+            var uri = orderPostResponse.Headers.Location;
+            var order = await client.GetAsync(uri);
+            var response = await order.Content.ReadAsStringAsync();
+            var orderInDto = await DeSerializeResponseAsync<OrderDto>(order);
+            var orderToPatch = Serialize(orderInDto);
+
+            //when
+            var patchResponse = await client.PatchAsync(uri, orderToPatch);
+
+            //then
+            Assert.Equal(HttpStatusCode.NoContent, patchResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Return_Bad_Request_Given_Closed_Order()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = Serialize(parkingLot);
+            var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var car = new CarDto() { PlateNumber = "N95024" };
+            var carRequestBody = Serialize(car);
+            var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
+            var uri = orderPostResponse.Headers.Location;
+            var order = await client.GetAsync(uri);
+            var response = await order.Content.ReadAsStringAsync();
+            var orderInDto = await DeSerializeResponseAsync<OrderDto>(order);
+            var orderToPatch = Serialize(orderInDto);
+            await client.PatchAsync(uri, orderToPatch);
+
+            //when
+            var patchResponse = await client.PatchAsync(uri, orderToPatch);
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Return_Bad_Request_Given_NotExisted_Order()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = GenerateParkingLotDtoInstance();
+            var requestBody = Serialize(parkingLot);
+            var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var car = new CarDto() { PlateNumber = "N95024" };
+            var carRequestBody = Serialize(car);
+            var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
+            var uri = orderPostResponse.Headers.Location;
+            var orderInDto = new OrderDto() { OrderNumber = 1 };
+            var orderToPatch = Serialize(orderInDto);
+            await client.PatchAsync(uri, orderToPatch);
+
+            //when
+            var patchResponse = await client.PatchAsync(uri, orderToPatch);
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
         }
     }
 }

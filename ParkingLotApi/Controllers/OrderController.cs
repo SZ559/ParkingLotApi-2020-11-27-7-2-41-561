@@ -21,7 +21,7 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateOrderAsync(int id, CarDto car)
+        public async Task<ActionResult<OrderDto>> CreateOrderAsync(int id, CarDto car)
         {
             if (string.IsNullOrEmpty(car.PlateNumber))
             {
@@ -41,6 +41,35 @@ namespace ParkingLotApi.Controllers
             var order = await parkingLotService.CreateOrder(id, car.PlateNumber);
 
             return CreatedAtAction(nameof(GetByOrderNumber), new { id = id, orderNumber = order.OrderNumber }, order);
+        }
+
+        [HttpPatch("{orderNumber}")]
+        public async Task<ActionResult> UpdateOrderAsync(int id, int orderNumber, OrderDto order)
+        {
+            if (order == null || !order.IsValid())
+            {
+                return BadRequest("Order and order information cannot be null.");
+            }
+
+            if (!await parkingLotService.IsParkingLotExisted(id))
+            {
+                return NotFound("ParkingLot not existed.");
+            }
+
+            var orderInMemory = await parkingLotService.GetOrder(id, orderNumber);
+
+            if (orderInMemory == null || !orderInMemory.Equals(order))
+            {
+                return BadRequest("Order not existed.");
+            }
+
+            if (!await parkingLotService.IsOrderOpened(orderNumber))
+            {
+                return BadRequest("Order is used.");
+            }
+
+            await parkingLotService.CloseOrder(orderNumber);
+            return NoContent();
         }
 
         [HttpGet("{orderNumber}")]
