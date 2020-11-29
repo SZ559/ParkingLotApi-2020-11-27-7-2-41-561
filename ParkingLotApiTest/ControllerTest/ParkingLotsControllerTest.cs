@@ -27,7 +27,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
 
             //when
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
@@ -48,7 +48,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = new ParkingLotDto() { Name = null, Capacity = null, Location = null };
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
 
             //when
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
@@ -69,7 +69,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             await client.PostAsync("/ParkingLots", requestBody);
 
             //when
@@ -91,7 +91,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
 
             //when
@@ -110,7 +110,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             await client.PostAsync("/ParkingLots", requestBody);
 
             //when
@@ -134,7 +134,7 @@ namespace ParkingLotApiTest.ControllerTest
             {
                 var parkingLot = GenerateParkingLotDtoInstance(count.ToString());
                 expectedParkingLots.Add(parkingLot);
-                var requestBody = SerializeParkingLot(parkingLot);
+                var requestBody = Serialize(parkingLot);
                 await client.PostAsync("/ParkingLots", requestBody);
                 count++;
             }
@@ -142,7 +142,7 @@ namespace ParkingLotApiTest.ControllerTest
             while (count < 20)
             {
                 var parkingLot = GenerateParkingLotDtoInstance(count.ToString());
-                var requestBody = SerializeParkingLot(parkingLot);
+                var requestBody = Serialize(parkingLot);
                 await client.PostAsync("/ParkingLots", requestBody);
                 count++;
             }
@@ -163,7 +163,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
 
             //when
@@ -182,7 +182,7 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
 
             //when
@@ -198,9 +198,9 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { Capacity = 10 });
+            var updateBody = Serialize<CapacityDto>(new CapacityDto() { Capacity = 10 });
 
             //when
             var patchResponse = await client.PatchAsync(postResponse.Headers.Location, updateBody);
@@ -218,9 +218,9 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { });
+            var updateBody = Serialize<CapacityDto>(new CapacityDto() { });
 
             //when
             var patchResponse = await client.PatchAsync(postResponse.Headers.Location, updateBody);
@@ -237,9 +237,9 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var parkingLot = GenerateParkingLotDtoInstance();
-            var requestBody = SerializeParkingLot(parkingLot);
+            var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var updateBody = SerializeParkingLot<CapacityDto>(new CapacityDto() { Capacity = 10 });
+            var updateBody = Serialize<CapacityDto>(new CapacityDto() { Capacity = 10 });
 
             //when
             var patchResponse = await client.PatchAsync("/ParkingLots/100", updateBody);

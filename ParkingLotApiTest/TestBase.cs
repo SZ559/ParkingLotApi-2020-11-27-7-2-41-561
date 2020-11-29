@@ -49,7 +49,7 @@ namespace ParkingLotApiTest
             return new ParkingLotDto() { Name = name, Capacity = 1, Location = "BEIJING" };
         }
 
-        protected StringContent SerializeParkingLot<T>(T parkingLot)
+        protected StringContent Serialize<T>(T parkingLot)
         {
             var httpContent = JsonConvert.SerializeObject(parkingLot);
             return new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);

@@ -21,12 +21,6 @@ namespace ParkingLotApiTest.ControllerTest
         {
         }
 
-        public async Task<T> DeSerializeResponseAsync<T>(HttpResponseMessage response)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(responseBody);
-        }
-
         [Fact]
         public async Task Should_Add_Order_Successfully_Given_Space_Avaliable_And_Parking_Lot_Existed()
         {
