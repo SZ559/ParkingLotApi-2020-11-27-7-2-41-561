@@ -117,7 +117,7 @@ namespace ParkingLotApi.Service
         public async Task<bool> IsParkingLotFull(int id)
         {
             var parkingLot = await GetParkingLotEntityById(id);
-            return parkingLot.Capacity >= parkingLot.Orders.Where(lot => lot.OrderStatus == OrderStatus.Open).Count();
+            return parkingLot.Capacity <= parkingLot.Orders.Where(lot => lot.OrderStatus == OrderStatus.Open).Count();
         }
 
         public async Task<bool> IsParkingLotExisted(int id)

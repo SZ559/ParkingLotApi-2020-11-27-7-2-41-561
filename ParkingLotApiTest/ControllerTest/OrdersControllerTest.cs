@@ -77,5 +77,25 @@ namespace ParkingLotApiTest.ControllerTest
             //then
             Assert.Equal(HttpStatusCode.NotFound, orderPostResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Return_The_Parking_Lot_IS_Full_Given_Parking_Lot_is_Full()
+        {
+            //given
+            var client = GetClient();
+            var parkingLot = new ParkingLotDto() { Name = "NAME", Capacity = 0, Location = "BEIJING" };
+            var requestBody = SerializeParkingLot(parkingLot);
+            var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
+            var car = new CarDto() { PlateNumber = "N95024" };
+            var carRequestBody = SerializeParkingLot(car);
+
+            //when
+            var orderPostResponse = await client.PostAsync($"{parkingLotPostResponse.Headers.Location}/Orders", carRequestBody);
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest, orderPostResponse.StatusCode);
+            var response = await orderPostResponse.Content.ReadAsStringAsync();
+            Assert.Equal("The parking lot is full", response);
+        }
     }
 }

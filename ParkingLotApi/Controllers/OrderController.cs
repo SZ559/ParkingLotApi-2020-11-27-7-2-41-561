@@ -23,7 +23,7 @@ namespace ParkingLotApi.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateOrderAsync(int id, CarDto car)
         {
-            if (car.PlateNumber == null)
+            if (string.IsNullOrEmpty(car.PlateNumber))
             {
                 return BadRequest("Plate Number cannot be null.");
             }
@@ -33,9 +33,9 @@ namespace ParkingLotApi.Controllers
                 return NotFound("ParkingLot not existed.");
             }
 
-            if (!await parkingLotService.IsParkingLotFull(id))
+            if (await parkingLotService.IsParkingLotFull(id))
             {
-                return BadRequest();
+                return BadRequest("The parking lot is full");
             }
 
             var order = await parkingLotService.CreateOrder(id, car.PlateNumber);
