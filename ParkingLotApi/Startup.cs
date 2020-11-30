@@ -31,6 +31,7 @@ namespace ParkingLotApi
             services.AddControllers();
             services.AddSwaggerGen();
             services.AddScoped<IParkingLotSerive, ParkingLotService>();
+            services.AddScoped<IOrderService, OrderService>();
             services.AddDbContext<ParkingLotContext>(options =>
             {
                 options.UseMySql(Configuration.GetConnectionString("Default"));

@@ -11,9 +11,23 @@ namespace ParkingLotApi.Controllers
     public class ParkingLotsController : ControllerBase
     {
         private readonly IParkingLotSerive parkingLotService;
-        public ParkingLotsController(IParkingLotSerive parkingLotService)
+        private readonly IOrderService orderService;
+        public ParkingLotsController(IParkingLotSerive parkingLotService, IOrderService orderService)
         {
             this.parkingLotService = parkingLotService;
+            this.orderService = orderService;
+        }
+
+        [HttpGet("{name}")]
+        public async Task<ActionResult<ParkingLotDto>> GetByName(string name)
+        {
+            var parkingLot = await parkingLotService.GetParkingLotByNameAsync(name);
+            if (parkingLot == null)
+            {
+                return NotFound("The parking lot is not eixsted.");
+            }
+
+            return Ok(parkingLot);
         }
 
         [HttpPost]
@@ -30,25 +44,25 @@ namespace ParkingLotApi.Controllers
                 return Conflict("Name already exists.");
             }
 
-            var id = await parkingLotService.AddParkingLotAsync(parkingLotDto);
+            var name = await parkingLotService.AddParkingLotAsync(parkingLotDto);
 
-            return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+            return CreatedAtAction(nameof(GetByName), new { name = name }, parkingLotDto);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<int>> DeleteParkingLotAsync(int id)
+        [HttpDelete("{name}")]
+        public async Task<ActionResult<int>> DeleteParkingLotAsync(string name)
         {
-            if (!await parkingLotService.IsParkingLotExistedAsync(id))
+            if (!await parkingLotService.IsParkingLotExistedAsync(name))
             {
                 return NotFound("The parking lot is not existed.");
             }
 
-            if (!await parkingLotService.IsPakringLotEmptyAsync(id))
+            if (await orderService.GetOrderOpenedInParkingLotAsync(name) != 0)
             {
                 return BadRequest("The Parking Lot is not empty.");
             }
 
-            await parkingLotService.DeleteParkingLotByIdAsync(id);
+            await parkingLotService.DeleteParkingLotByIdAsync(name);
             return NoContent();
         }
 
@@ -59,33 +73,21 @@ namespace ParkingLotApi.Controllers
             return Ok(parkingLots);
         }
 
-        [HttpPatch("{id}")]
-        public async Task<ActionResult<ParkingLotDto>> UpdateCapacity(int id, CapacityDto updatedCapacity)
+        [HttpPatch("{name}")]
+        public async Task<ActionResult<ParkingLotDto>> UpdateCapacity(string name, CapacityDto updatedCapacity)
         {
             if (updatedCapacity == null || updatedCapacity.Capacity == null)
             {
                 return BadRequest("Capacity cannot be null.");
             }
 
-            if (!await parkingLotService.IsParkingLotExistedAsync(id))
+            if (!await parkingLotService.IsParkingLotExistedAsync(name))
             {
                 return NotFound("The parking lot is not existed.");
             }
 
-            var updatedParkingLot = await parkingLotService.UpdateCapacityAsync(id, updatedCapacity);
+            var updatedParkingLot = await parkingLotService.UpdateCapacityAsync(name, updatedCapacity);
             return Ok(updatedParkingLot);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ParkingLotDto>> GetById(int id)
-        {
-            var parkingLot = await parkingLotService.GetParkingLotByIdAsync(id);
-            if (parkingLot == null)
-            {
-                return NotFound("The parking lot is not eixsted.");
-            }
-
-            return Ok(parkingLot);   
         }
     }
 }

@@ -106,12 +106,12 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarDto() { PlateNumber = "N95024" };
+            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
-            var response = await client.PostAsync($"{postResponse.Headers.Location}/Orders", carRequestBody);
-            var hearder = response.Headers.Location;
+            await client.PostAsync($"/Orders", carRequestBody);
+
             //when
-            var deleteResponse = await client.DeleteAsync(postResponse.Headers.Location);
+            var deleteResponse = await client.DeleteAsync("/ParkingLots/uniqueName");
 
             //then
             Assert.Equal(HttpStatusCode.BadRequest, deleteResponse.StatusCode);

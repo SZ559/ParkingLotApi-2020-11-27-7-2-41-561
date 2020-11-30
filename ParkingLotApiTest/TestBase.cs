@@ -28,6 +28,7 @@ namespace ParkingLotApiTest
             var context = scopedServices.GetRequiredService<ParkingLotContext>();
 
             context.ParkingLots.RemoveRange(context.ParkingLots);
+            context.Orders.RemoveRange(context.Orders);
             context.SaveChanges();
         }
 
@@ -44,9 +45,9 @@ namespace ParkingLotApiTest
             return scopedServices.GetRequiredService<ParkingLotContext>();
         }
 
-        protected ParkingLotDto GenerateParkingLotDtoInstance(string name = "uniqueName")
+        protected ParkingLotDto GenerateParkingLotDtoInstance(string name = "uniqueName", uint capacity = 1)
         {
-            return new ParkingLotDto() { Name = name, Capacity = 1, Location = "BEIJING" };
+            return new ParkingLotDto() { Name = name, Capacity = capacity, Location = "BEIJING" };
         }
 
         protected StringContent Serialize<T>(T parkingLot)

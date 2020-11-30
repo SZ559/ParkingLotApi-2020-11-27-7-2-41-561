@@ -1,86 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using ParkingLotApi.Entity;
 using ParkingLotApi.Service;
 using ParkingLotApi.Dto;
 
 namespace ParkingLotApi.Controllers
 {
     [ApiController]
-    [Route("/ParkingLots/{id}/Orders")]
+    [Route("/Orders")]
     public class OrdersController : ControllerBase
     {
         private readonly IParkingLotSerive parkingLotService;
-        public OrdersController(IParkingLotSerive parkingLotService)
+        private readonly IOrderService orderService;
+        public OrdersController(IParkingLotSerive parkingLotService, IOrderService orderService)
         {
             this.parkingLotService = parkingLotService;
+            this.orderService = orderService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateOrderAsync(int id, CarDto car)
+        public async Task<ActionResult<OrderDto>> CreateOrderAsync(CarOrder carOrder)
         {
-            if (string.IsNullOrEmpty(car.PlateNumber))
+            if (string.IsNullOrEmpty(carOrder.PlateNumber) || string.IsNullOrEmpty(carOrder.ParkingLotName))
             {
-                return BadRequest("Plate Number cannot be null.");
+                return BadRequest("Plate Number and Parking Lot Name cannot be null.");
             }
 
-            if (!await parkingLotService.IsParkingLotExistedAsync(id))
+            if (!await parkingLotService.IsParkingLotExistedAsync(carOrder.ParkingLotName))
             {
                 return NotFound("ParkingLot not existed.");
             }
 
-            if (await parkingLotService.IsParkingLotFull(id))
+            if (await IsParkingLotFullAsync(carOrder.ParkingLotName))
             {
                 return BadRequest("The parking lot is full");
             }
 
-            var order = await parkingLotService.CreateOrderAsync(id, car.PlateNumber);
+            if (await parkingLotService.IsCarExisted(carOrder.PlateNumber))
+            {
+                return BadRequest("The car already existed.");
+            }
 
-            return CreatedAtAction(nameof(GetByOrderNumber), new { id = id, orderNumber = order.OrderNumber }, order);
+            var order = await orderService.CreateOrderAsync(carOrder.ParkingLotName, carOrder.PlateNumber);
+
+            return CreatedAtAction(nameof(GetByOrderNumber), new { orderNumber = order.OrderNumber }, order);
         }
 
         [HttpPatch("{orderNumber}")]
-        public async Task<ActionResult> UpdateOrderAsync(int id, int orderNumber, OrderDto order)
+        public async Task<ActionResult> UpdateOrderAsync(int orderNumber, OrderDto order)
         {
             if (order == null || !order.IsValid())
             {
                 return BadRequest("Order and order information cannot be null.");
             }
 
-            if (!await parkingLotService.IsParkingLotExistedAsync(id))
+            if (!await parkingLotService.IsParkingLotExistedAsync(order.ParkingLotName))
             {
                 return NotFound("ParkingLot not existed.");
             }
 
-            var orderInMemory = await parkingLotService.GetOrderAsync(orderNumber);
+            var orderInMemory = await orderService.GetOrderAsync(orderNumber);
 
             if (orderInMemory == null || !orderInMemory.Equals(order))
             {
                 return BadRequest("Order not existed.");
             }
 
-            if (!await parkingLotService.IsOrderOpenedAsync(orderNumber))
+            if (!await orderService.IsOrderOpenedAsync(orderNumber))
             {
                 return BadRequest("Order is used.");
             }
 
-            await parkingLotService.CloseOrderAsync(orderNumber);
+            await orderService.CloseOrderAsync(orderNumber);
             return NoContent();
         }
 
         [HttpGet("{orderNumber}")]
-        public async Task<ActionResult<OrderDto>> GetByOrderNumber(int id, int orderNumber)
+        public async Task<ActionResult<OrderDto>> GetByOrderNumber(int orderNumber)
         {
-            if (!await parkingLotService.IsParkingLotExistedAsync(id))
-            {
-                return NotFound("ParkingLot not existed.");
-            }
-
-            var order = await parkingLotService.GetOrderAsync(orderNumber);
+            var order = await orderService.GetOrderAsync(orderNumber);
 
             if (order == null)
             {
@@ -88,6 +85,13 @@ namespace ParkingLotApi.Controllers
             }
 
             return Ok(order);
+        }
+
+        private async Task<bool> IsParkingLotFullAsync(string name)
+        {
+            var parkingLotCapacity = await parkingLotService.GetParkingLotCapacity(name); 
+            var numberOfCarsInParkingLot = await orderService.GetOrderOpenedInParkingLotAsync(name);
+            return parkingLotCapacity <= numberOfCarsInParkingLot;
         }
     }
 }

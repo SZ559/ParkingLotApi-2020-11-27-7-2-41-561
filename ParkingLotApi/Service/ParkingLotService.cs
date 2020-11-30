@@ -12,14 +12,20 @@ namespace ParkingLotApi.Service
     public class ParkingLotService : IParkingLotSerive
     {
         private readonly ParkingLotContext parkingLotDbContext;
-        private readonly object lot;
 
         public ParkingLotService(ParkingLotContext parkingLotDbContext)
         {
             this.parkingLotDbContext = parkingLotDbContext;
         }
 
-        public async Task<int> AddParkingLotAsync(ParkingLotDto parkingLotDto)
+        public async Task<ParkingLotDto> GetParkingLotByNameAsync(string name)
+        {
+            var parkingLot = parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Name == name);
+
+            return parkingLot == null ? null : new ParkingLotDto(parkingLot);
+        }
+
+        public async Task<string> AddParkingLotAsync(ParkingLotDto parkingLotDto)
         {
             var parkingLotEntity = new ParkingLotEntity()
             {
@@ -29,12 +35,12 @@ namespace ParkingLotApi.Service
             };
             await parkingLotDbContext.AddAsync(parkingLotEntity);
             await parkingLotDbContext.SaveChangesAsync();
-            return parkingLotEntity.Id;
+            return parkingLotEntity.Name;
         }
 
-        public async Task<bool> DeleteParkingLotByIdAsync(int id)
+        public async Task<bool> DeleteParkingLotByIdAsync(string name)
         {
-            var parkingLot = await GetParkingLotEntityByIdAsync(id);
+            var parkingLot = await GetParkingLotEntityByIdAsync(name);
             if (parkingLot == null)
             {
                 return false;
@@ -60,76 +66,33 @@ namespace ParkingLotApi.Service
                 .ToList();
         }
 
-        public async Task<ParkingLotDto> UpdateCapacityAsync(int id, CapacityDto updatedCapacity)
+        public async Task<ParkingLotDto> UpdateCapacityAsync(string name, CapacityDto updatedCapacity)
         {
-            var parkingLot = await GetParkingLotEntityByIdAsync(id);
+            var parkingLot = await GetParkingLotEntityByIdAsync(name);
             parkingLot.Capacity = updatedCapacity.Capacity.Value;
             parkingLotDbContext.ParkingLots.Update(parkingLot);
             return new ParkingLotDto(parkingLot);
         }
 
-        public async Task<ParkingLotDto> GetParkingLotByIdAsync(int id)
+        public async Task<uint?> GetParkingLotCapacity(string name)
         {
-            var parkingLot = parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id);
-
-            return parkingLot == null ? null : new ParkingLotDto(parkingLot);
+            var parkingLot = await GetParkingLotEntityByIdAsync(name);
+            return parkingLot?.Capacity;
         }
 
-        public async Task<bool> IsParkingLotFull(int id)
+        public async Task<bool> IsParkingLotExistedAsync(string name)
         {
-            var parkingLot = await GetParkingLotEntityByIdAsync(id);
-            return parkingLot.Capacity <= parkingLot.Orders.Where(lot => lot.OrderStatus == OrderStatus.Open).Count();
+            return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Name == name) != null;
         }
 
-        public async Task<bool> IsPakringLotEmptyAsync(int id)
+        public async Task<bool> IsCarExisted(string plateNumber)
         {
-            var parkingLot = await GetParkingLotEntityByIdAsync(id);
-            return !parkingLot.Orders.Any(lot => lot.OrderStatus == OrderStatus.Open);
+            return parkingLotDbContext.Orders.FirstOrDefault(parkingLot => parkingLot.ParkingLotName == plateNumber) != null;
         }
 
-        public async Task<bool> IsParkingLotExistedAsync(int id)
+        private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(string name)
         {
-            return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Id == id) != null;
-        }
-
-        public async Task<OrderDto> CreateOrderAsync(int id, string plateNumber)
-        {
-            var parkingLot = await GetParkingLotEntityByIdAsync(id);
-            var order = new OrderEntity()
-            {
-                PlateNumber = plateNumber,
-                ParkingLotName = parkingLot.Name,
-            };
-            parkingLot.Orders.Add(order);
-            parkingLotDbContext.UpdateRange(parkingLot);
-            await parkingLotDbContext.SaveChangesAsync();
-            return new OrderDto(order);
-        }
-
-        public async Task<OrderDto> GetOrderAsync(int orderNumber)
-        {
-            var order = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
-            return order == null ? null : new OrderDto(order);
-        }
-
-        public async Task<bool> IsOrderOpenedAsync(int orderNumber)
-        {
-            var orderInMemory = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
-            return orderInMemory != null && orderInMemory.OrderStatus == OrderStatus.Open;
-        }
-
-        public async Task CloseOrderAsync(int orderNumber)
-        {
-            var orderInMemory = parkingLotDbContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
-            orderInMemory.OrderStatus = OrderStatus.Close;
-            orderInMemory.CloseTime = DateTime.Now;
-            parkingLotDbContext.UpdateRange(orderInMemory);
-            await parkingLotDbContext.SaveChangesAsync();
-        }
-
-        private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(int id)
-        {
-            return parkingLotDbContext.ParkingLots.Include(lot => lot.Orders).FirstOrDefault(parkingLot => parkingLot.Id == id);
+            return parkingLotDbContext.ParkingLots.Include(lot => lot.Orders).FirstOrDefault(parkingLot => parkingLot.Name == name);
         }
     }
 }

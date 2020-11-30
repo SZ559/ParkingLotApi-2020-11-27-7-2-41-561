@@ -46,10 +46,10 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var dbContext = GetContext();
             var parkingLotService = new ParkingLotService(dbContext);
-            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
+            var name = await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotByIdAsync(id);
+            await parkingLotService.DeleteParkingLotByIdAsync(name);
 
             //then
             Assert.Equal(0, dbContext.ParkingLots.Count());
@@ -65,7 +65,7 @@ namespace ParkingLotApiTest.ControllerTest
             await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
-            await parkingLotService.DeleteParkingLotByIdAsync(13);
+            await parkingLotService.DeleteParkingLotByIdAsync("notexisted");
 
             //then
             Assert.Equal(1, dbContext.ParkingLots.Count());
@@ -94,16 +94,16 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var dbContext = GetContext();
             var parkingLotService = new ParkingLotService(dbContext);
-            var id = await parkingLotService.AddParkingLotAsync(parkingLot);
+            var name = await parkingLotService.AddParkingLotAsync(parkingLot);
 
             //when
             var updatedCapacity = new CapacityDto() { Capacity = 2 };
-            var acatualParkingLots = await parkingLotService.UpdateCapacityAsync(id, updatedCapacity);
+            var acatualParkingLots = await parkingLotService.UpdateCapacityAsync(name, updatedCapacity);
 
             //then
             Assert.Equal(updatedCapacity.Capacity.Value, acatualParkingLots.Capacity.Value);
 
-            var actualParkingLot = await dbContext.ParkingLots.FirstOrDefaultAsync(lot => lot.Id == id);
+            var actualParkingLot = await dbContext.ParkingLots.FirstOrDefaultAsync(lot => lot.Name == name);
             Assert.Equal(updatedCapacity.Capacity.Value, actualParkingLot.Capacity);
         }
     }
