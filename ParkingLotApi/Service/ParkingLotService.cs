@@ -85,11 +85,6 @@ namespace ParkingLotApi.Service
             return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Name == name) != null;
         }
 
-        public async Task<bool> IsCarExisted(string plateNumber)
-        {
-            return parkingLotDbContext.Orders.FirstOrDefault(parkingLot => parkingLot.ParkingLotName == plateNumber) != null;
-        }
-
         private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(string name)
         {
             return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Name == name);

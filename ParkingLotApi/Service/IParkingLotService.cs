@@ -15,7 +15,6 @@ namespace ParkingLotApi.Service
         Task<IList<ParkingLotDto>> GetParkingLotByPageIndexAsync(int pageIndex);
         Task<ParkingLotDto> UpdateCapacityAsync(string name, CapacityDto updatedCapacity);
         Task<bool> IsParkingLotExistedAsync(string name);
-        Task<bool> IsCarExisted(string plateNumber);
         Task<uint?> GetParkingLotCapacity(string name);
     }
 }

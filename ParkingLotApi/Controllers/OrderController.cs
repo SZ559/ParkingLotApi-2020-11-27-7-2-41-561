@@ -35,7 +35,7 @@ namespace ParkingLotApi.Controllers
                 return BadRequest("The parking lot is full");
             }
 
-            if (await parkingLotService.IsCarExisted(carOrder.PlateNumber))
+            if (await orderService.IsCarExisted(carOrder.PlateNumber))
             {
                 return BadRequest("The car already existed.");
             }

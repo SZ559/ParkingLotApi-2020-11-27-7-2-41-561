@@ -55,5 +55,10 @@ namespace ParkingLotApi.Service
         {
             return orders.Where(order => order.ParkingLotName == name).Count();
         }
+
+        public async Task<bool> IsCarExisted(string plateNumber)
+        {
+            return orders.FirstOrDefault(order => order.PlateNumber == plateNumber) != null;
+        }
     }
 }

@@ -11,6 +11,10 @@ namespace ParkingLotApi.Entity
 
     public class OrderEntity
     {
+        public OrderEntity()
+        {
+        }
+
         [Key]
         public int OrderNumber { get; set; }
         public string ParkingLotName { get; set; }

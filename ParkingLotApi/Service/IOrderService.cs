@@ -12,6 +12,7 @@ namespace ParkingLotApi.Service
         Task<OrderDto> CreateOrderAsync(string parkingLotName, string plateNumber);
         Task<bool> IsOrderOpenedAsync(int orderNumber);
         Task CloseOrderAsync(int orderNumber);
-        Task<int> GetOrderOpenedInParkingLotAsync(string name);
+        Task<int> GetOrderOpenedInParkingLotAsync(string parkingLotName);
+        Task<bool> IsCarExisted(string plateNumber);
     }
 }
