@@ -40,7 +40,7 @@ namespace ParkingLotApi.Controllers
         {
             if (!await parkingLotService.IsParkingLotExistedAsync(id))
             {
-                return NotFound();
+                return NotFound("The parking lot is not existed.");
             }
 
             if (!await parkingLotService.IsPakringLotEmptyAsync(id))
@@ -69,7 +69,7 @@ namespace ParkingLotApi.Controllers
 
             if (!await parkingLotService.IsParkingLotExistedAsync(id))
             {
-                return NotFound();
+                return NotFound("The parking lot is not existed.");
             }
 
             var updatedParkingLot = await parkingLotService.UpdateCapacityAsync(id, updatedCapacity);
@@ -82,7 +82,7 @@ namespace ParkingLotApi.Controllers
             var parkingLot = await parkingLotService.GetParkingLotByIdAsync(id);
             if (parkingLot == null)
             {
-                return NotFound();
+                return NotFound("The parking lot is not eixsted.");
             }
 
             return Ok(parkingLot);   
