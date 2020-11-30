@@ -92,7 +92,7 @@ namespace ParkingLotApi.Service
 
         private async Task<ParkingLotEntity> GetParkingLotEntityByIdAsync(string name)
         {
-            return parkingLotDbContext.ParkingLots.Include(lot => lot.Orders).FirstOrDefault(parkingLot => parkingLot.Name == name);
+            return parkingLotDbContext.ParkingLots.FirstOrDefault(parkingLot => parkingLot.Name == name);
         }
     }
 }

@@ -14,5 +14,4 @@ namespace ParkingLotApi.Service
         Task CloseOrderAsync(int orderNumber);
         Task<int> GetOrderOpenedInParkingLotAsync(string name);
     }
-
 }

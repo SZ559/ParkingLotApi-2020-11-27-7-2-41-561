@@ -30,7 +30,7 @@ namespace ParkingLotApiTest.ControllerTest
             //then
             Assert.Equal(HttpStatusCode.Created, orderPostResponse.StatusCode);
 
-            var responseBody = await DeSerializeResponseAsync<CarDto>(orderPostResponse);
+            var responseBody = await DeSerializeResponseAsync<CarOrderDto>(orderPostResponse);
             Assert.Equal(car.PlateNumber, responseBody.PlateNumber);
 
             var dbContext = GetContext();

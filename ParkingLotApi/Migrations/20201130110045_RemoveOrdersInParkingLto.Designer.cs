@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParkingLotApi.Repository;
 
 namespace ParkingLotApi.Migrations
 {
     [DbContext(typeof(ParkingLotContext))]
-    partial class ParkingLotContextModelSnapshot : ModelSnapshot
+    [Migration("20201130110045_RemoveOrdersInParkingLto")]
+    partial class RemoveOrdersInParkingLto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
