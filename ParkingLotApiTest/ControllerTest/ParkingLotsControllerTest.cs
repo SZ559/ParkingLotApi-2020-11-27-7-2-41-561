@@ -145,11 +145,11 @@ namespace ParkingLotApiTest.ControllerTest
             //given
             var client = GetClient();
             var count = 0;
-            var expectedParkingLots = new List<ParkingLotDto>();
+            var expectedParkingLots = new List<string>();
             while (count < 15)
             {
                 var parkingLot = GenerateParkingLotDtoInstance(count.ToString());
-                expectedParkingLots.Add(parkingLot);
+                expectedParkingLots.Add(parkingLot.Name);
                 var requestBody = Serialize(parkingLot);
                 await client.PostAsync("/ParkingLots", requestBody);
                 count++;
@@ -169,7 +169,7 @@ namespace ParkingLotApiTest.ControllerTest
             //then
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-            var actualParkingLots = await DeSerializeResponseAsync<IList<ParkingLotDto>>(getResponse);
+            var actualParkingLots = await DeSerializeResponseAsync<IList<string>>(getResponse);
             Assert.Equal(expectedParkingLots, actualParkingLots);
         }
 

@@ -56,13 +56,13 @@ namespace ParkingLotApi.Service
             return parkingLotDbContext.ParkingLots.Any(lot => lot.Name == name);
         }
 
-        public async Task<IList<ParkingLotDto>> GetParkingLotByPageIndexAsync(int pageIndex)
+        public async Task<IList<string>> GetParkingLotByPageIndexAsync(int pageIndex)
         {
             const int parkingLotsperPage = 15;
             return parkingLotDbContext.ParkingLots
                 .Skip(parkingLotsperPage * (pageIndex - 1))
                 .Take(parkingLotsperPage)
-                .Select(paringLot => new ParkingLotDto(paringLot))
+                .Select(paringLot => paringLot.Name)
                 .ToList();
         }
 

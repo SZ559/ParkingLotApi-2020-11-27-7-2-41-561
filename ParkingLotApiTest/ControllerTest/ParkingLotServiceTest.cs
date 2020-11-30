@@ -84,7 +84,7 @@ namespace ParkingLotApiTest.ControllerTest
             var acatualParkingLots = await parkingLotService.GetParkingLotByPageIndexAsync(2);
 
             //then
-            Assert.Equal(new List<ParkingLotDto>(), acatualParkingLots);
+            Assert.Equal(new List<string>(), acatualParkingLots);
         }
 
         [Fact]
