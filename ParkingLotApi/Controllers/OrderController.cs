@@ -18,7 +18,7 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateOrderAsync(CarOrder carOrder)
+        public async Task<ActionResult<OrderDto>> CreateOrderAsync(CarOrderDto carOrder)
         {
             if (string.IsNullOrEmpty(carOrder.PlateNumber) || string.IsNullOrEmpty(carOrder.ParkingLotName))
             {

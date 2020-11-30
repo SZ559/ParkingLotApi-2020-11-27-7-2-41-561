@@ -22,7 +22,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance("uniqueName", 2);
             var requestBody = Serialize(parkingLot);
             await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
             //when
             var orderPostResponse = await client.PostAsync($"/Orders", carRequestBody);
@@ -45,7 +45,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "notexisted" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "notexisted" };
             var carRequestBody = Serialize(car);
             //when
             var orderPostResponse = await client.PostAsync($"/Orders", carRequestBody);
@@ -62,7 +62,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = new ParkingLotDto() { Name = "uniqueName", Capacity = 0, Location = "BEIJING" };
             var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
 
             //when
@@ -82,7 +82,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance("uniqueName");
             var requestBody = Serialize(parkingLot);
             await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
             var orderPostResponse = await client.PostAsync($"/Orders", carRequestBody);
             var uri = orderPostResponse.Headers.Location;
@@ -106,7 +106,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
             var orderPostResponse = await client.PostAsync($"/Orders", carRequestBody);
             var uri = orderPostResponse.Headers.Location;
@@ -131,7 +131,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = Serialize(parkingLot);
             var parkingLotPostResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
             var orderPostResponse = await client.PostAsync($"/Orders", carRequestBody);
             var uri = orderPostResponse.Headers.Location;

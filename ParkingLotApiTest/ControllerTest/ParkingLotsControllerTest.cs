@@ -106,7 +106,7 @@ namespace ParkingLotApiTest.ControllerTest
             var parkingLot = GenerateParkingLotDtoInstance();
             var requestBody = Serialize(parkingLot);
             var postResponse = await client.PostAsync("/ParkingLots", requestBody);
-            var car = new CarOrder() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
+            var car = new CarOrderDto() { PlateNumber = "N95024", ParkingLotName = "uniqueName" };
             var carRequestBody = Serialize(car);
             await client.PostAsync($"/Orders", carRequestBody);
 
